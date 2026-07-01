@@ -1,7 +1,45 @@
 import { MDBInput, MDBBtn } from "mdb-react-ui-kit";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const Login = () => {
+const Signup = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [status, setStatus] = useState("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/login",
+        formData,
+      );
+      console.log(response.data);
+      setStatus("success");
+      setFormData({
+        email: "",
+        password: "",
+      });
+      navigate("dashboard");
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(err.response?.data?.message || err.message);
+    }
+  };
+
   return (
     <div
       className="d-flex justify-content-center align-items-center"
@@ -15,23 +53,42 @@ const Login = () => {
           <h2 className="text-center mb-4 fw-bold">Login Your Account</h2>
           <p className="text-center text-muted mb-4">Login to get started</p>
 
-          <form>
+          <form onSubmit={handleSubmit}>
             <MDBInput
               label="Email Address"
               type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               className="mb-4"
-              autoFocus
             />
 
-            <MDBInput label="Password" type="password" className="mb-4" />
+            <MDBInput
+              label="Password"
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="mb-4"
+            />
 
-            <MDBBtn className="w-100 mb-3" color="primary">
-              Login
+            <MDBBtn
+              className="w-100 mb-3"
+              color="primary"
+              type="submit"
+              disabled={status === "loading"}
+            >
+              {status === "loading" ? "loading...." : "Login"}
             </MDBBtn>
+
+            {status === "success" && <p>Message sent.</p>}
+            {status === "error" && <p>{errorMsg}</p>}
 
             <div className="text-center">
               <p className="mb-0">
-                Don`t have an account?{" "}
+                Already have an account?{" "}
                 <Link to="/signup" className="fw-bold">
                   Signup
                 </Link>
@@ -44,4 +101,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
