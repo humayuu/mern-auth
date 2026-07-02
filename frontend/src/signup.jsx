@@ -1,6 +1,7 @@
 import { MDBInput, MDBBtn } from "mdb-react-ui-kit";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Loader from "./components/loader";
 import axios from "axios";
 
 const Signup = () => {
@@ -11,7 +12,7 @@ const Signup = () => {
     password: "",
     password_confirmation: "",
   });
-  const [status, setStatus] = useState("idle"); // 'idle' | 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e) => {
@@ -30,6 +31,11 @@ const Signup = () => {
         formData,
       );
       console.log(response.data);
+
+      // Set Token for Auth
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user_name", response.data.user.name);
+
       setStatus("success");
       setFormData({
         name: "",
@@ -37,7 +43,7 @@ const Signup = () => {
         password: "",
         password_confirmation: "",
       });
-      navigate("dashboard");
+      navigate("/dashboard");
     } catch (err) {
       setStatus("error");
       setErrorMsg(err.response?.data?.message || err.message);
@@ -99,12 +105,12 @@ const Signup = () => {
               className="mb-4"
             />
             <MDBBtn
-              className="w-100 mb-3"
+              className="w-100"
               color="primary"
               type="submit"
               disabled={status === "loading"}
             >
-              {status === "loading" ? "loading...." : "Create Account"}
+              {status === "loading" ? <Loader /> : "Create Account"}
             </MDBBtn>
 
             {status === "success" && <p>Message sent.</p>}

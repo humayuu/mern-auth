@@ -1,6 +1,7 @@
 import { MDBInput, MDBBtn } from "mdb-react-ui-kit";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Loader from "./components/loader.jsx";
 import axios from "axios";
 
 const Signup = () => {
@@ -28,12 +29,17 @@ const Signup = () => {
         formData,
       );
       console.log(response.data);
+
+      // Set Token for Auth
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user_name", response.data.user.name);
+
       setStatus("success");
       setFormData({
         email: "",
         password: "",
       });
-      navigate("dashboard");
+      navigate("/dashboard");
     } catch (err) {
       setStatus("error");
       setErrorMsg(err.response?.data?.message || err.message);
@@ -80,7 +86,7 @@ const Signup = () => {
               type="submit"
               disabled={status === "loading"}
             >
-              {status === "loading" ? "loading...." : "Login"}
+              {status === "loading" ? <Loader /> : "Login"}
             </MDBBtn>
 
             {status === "success" && <p>Message sent.</p>}
